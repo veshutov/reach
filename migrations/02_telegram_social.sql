@@ -1,0 +1,1 @@
+INSERT INTO social (id, social_type, created, updated) VALUES (1, 'Telegram', now(), now());

@@ -10,4 +10,5 @@ axum = "0.5.15"
 serde = "1.0.143"
 tokio = { version = "1.20.1", features = ["full"] }
 hyper = { version = "0.14.20", features = ["full"] }
-sqlx = "0.6.1"
+sqlx = {version = "0.6.1", features = ["postgres", "runtime-tokio-rustls"]}
+thiserror = "1.0.37"
