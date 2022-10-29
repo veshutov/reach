@@ -3,7 +3,7 @@ CREATE TYPE social_type AS ENUM (
 );
 
 CREATE TABLE social (
-    id bigserial,
+    id bigserial PRIMARY KEY,
     social_type social_type,
     created_at timestamp,
     created_by bigserial,
