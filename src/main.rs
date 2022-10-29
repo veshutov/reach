@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 mod model;
 mod security;
 mod web;

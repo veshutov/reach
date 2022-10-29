@@ -1,10 +1,9 @@
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::model;
 use crate::model::db::Db;
 use crate::model::Error;
-use crate::security::UserCtx;
+use crate::security::Claims;
 
 #[derive(sqlx::Type, Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[sqlx(type_name = "social_type")]
@@ -28,11 +27,11 @@ pub struct SocialPatch {
 pub struct SocialDao;
 
 impl SocialDao {
-    pub async fn create(db: &Db, utx: &UserCtx, social: SocialPatch) -> Result<Social, Error> {
+    pub async fn create(db: &Db, utx: &Claims, social: SocialPatch) -> Result<Social, Error> {
         let sql = "INSERT INTO social (social_type, created_at, created_by, updated_at, updated_by) VALUES ($1, now(), $2, now(), $2) returning id, social_type";
         let query = sqlx::query_as::<_, Social>(&sql)
             .bind(social.social_type)
-            .bind(utx.user_id);
+            .bind(utx.sub);
 
         let social = query.fetch_one(db).await?;
 
