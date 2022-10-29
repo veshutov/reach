@@ -1,5 +1,4 @@
 use sqlx::{Error, Pool, Postgres};
-use sqlx::migrate::Migrator;
 use sqlx::postgres::PgPoolOptions;
 
 pub type Db = Pool<Postgres>;

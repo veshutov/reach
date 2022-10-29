@@ -2,6 +2,7 @@ use std::error::Error;
 
 use crate::model::db::init_db;
 use crate::model::social::SocialType::Telegram;
+use crate::security::utx_from_token;
 
 use super::SocialDao;
 
