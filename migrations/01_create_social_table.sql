@@ -4,11 +4,11 @@ CREATE TYPE social_type AS ENUM (
 
 CREATE TABLE social (
     id bigserial PRIMARY KEY,
-    social_type social_type,
-    created_at timestamp,
-    created_by bigserial,
-    updated_at timestamp,
-    updated_by bigserial
+    social_type social_type NOT NULL,
+    created_at timestamp NOT NULL,
+    created_by bigserial NOT NULL,
+    updated_at timestamp NOT NULL,
+    updated_by bigserial NOT NULL
 );
 
 ALTER SEQUENCE social_id_seq RESTART WITH 1000;

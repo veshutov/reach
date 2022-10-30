@@ -2,30 +2,36 @@ use std::sync::Arc;
 
 use axum::{Extension, Json};
 use axum::extract::Path;
-use axum::http::StatusCode;
 
-use crate::model::{Social, SocialDao, SocialPatch};
+use crate::{AppError, RepoError, WebError};
+use crate::model::{create, find_by_id, Social, SocialCreateDto};
 use crate::security::Claims;
-use crate::web::{internal_error, State};
+use crate::web::State;
 
 pub async fn create_social(
     Extension(state): Extension<Arc<State>>,
     claims: Claims,
-    body: Json<SocialPatch>,
-) -> Result<Json<Social>, (StatusCode, String)> {
-    SocialDao::create(&state.db, &claims, body.0)
+    body: Json<SocialCreateDto>,
+) -> Result<Json<Social>, AppError> {
+    create(&state.db, &claims, body.0)
         .await
-        .map_err(internal_error)
+        .map_err(to_app_error)
         .map(Json::from)
 }
 
 pub async fn get_social_by_id(
     Extension(state): Extension<Arc<State>>,
     _: Claims,
-    path: Path<String>,
-) -> Result<Json<Social>, (StatusCode, String)> {
-    SocialDao::find_by_id(&state.db, path.parse().unwrap())
+    path: Path<(String, String)>,
+) -> Result<Json<Social>, AppError> {
+    let id = path.1.parse()
+        .map_err(|_| AppError::Web(WebError::InvalidRequest("invalid social id".to_string())))?;
+    find_by_id(&state.db, id)
         .await
-        .map_err(internal_error)
+        .map_err(to_app_error)
         .map(Json::from)
+}
+
+fn to_app_error(err: RepoError) -> AppError {
+    AppError::Repo(err)
 }

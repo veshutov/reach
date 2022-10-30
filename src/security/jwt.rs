@@ -1,6 +1,5 @@
 use axum::async_trait;
 use axum::extract::{FromRequest, RequestParts, TypedHeader};
-use axum::http::StatusCode;
 use axum::Json;
 use headers::Authorization;
 use headers::authorization::Bearer;
@@ -9,9 +8,10 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::{AppError, SecurityError};
+
 static KEYS: Lazy<Keys> = Lazy::new(|| {
-    //should store it in env var
-    let secret = "jwt_secret";
+    let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     Keys::new(secret.as_bytes())
 });
 
@@ -48,10 +48,10 @@ impl Keys {
     }
 }
 
-pub async fn authorize(body: Json<AuthRequest>) -> Result<Json<AuthResponse>, (StatusCode, String)> {
+pub async fn authorize(body: Json<AuthRequest>) -> Result<Json<AuthResponse>, AppError> {
     //should compare with values from db
     if body.client_id != "client_id" || body.client_secret != "client_secret" {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Invalid credentials".to_owned()));
+        return Err(AppError::Security(SecurityError::InvalidCredentials));
     }
 
     let claims = Claims {
@@ -61,7 +61,7 @@ pub async fn authorize(body: Json<AuthRequest>) -> Result<Json<AuthResponse>, (S
     };
 
     let token = encode(&Header::default(), &claims, &KEYS.encoding)
-        .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Invalid credentials".to_owned()))?;
+        .map_err(|_| AppError::Security(SecurityError::FailedToEncodeClaims))?;
 
     return Ok(Json::from(AuthResponse {
         access_token: token,
@@ -74,16 +74,16 @@ impl<S> FromRequest<S> for Claims
     where
         S: Send + Sync,
 {
-    type Rejection = (StatusCode, String);
+    type Rejection = AppError;
 
     async fn from_request(req: &mut RequestParts<S>) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = req
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Invalid auth token".to_owned()))?;
+            .map_err(|_| AppError::Security(SecurityError::InvalidAuthToken))?;
 
         let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
-            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Invalid auth token".to_owned()))?;
+            .map_err(|_| AppError::Security(SecurityError::InvalidAuthToken))?;
 
         Ok(token_data.claims)
     }
