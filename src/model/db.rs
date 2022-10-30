@@ -3,13 +3,8 @@ use sqlx::postgres::PgPoolOptions;
 
 pub type Db = Pool<Postgres>;
 
-const PG_HOST: &str = "localhost";
-const PG_ROOT_DB: &str = "reach";
-const PG_ROOT_USER: &str = "veshutov";
-const PG_ROOT_PWD: &str = "";
-
 pub async fn init_db() -> Result<Db, Error> {
-    let pool = new_db_pool(PG_HOST, PG_ROOT_DB, PG_ROOT_USER, PG_ROOT_PWD, 1)
+    let pool = new_db_pool(10)
         .await?;
     sqlx::migrate!()
         .run(&pool)
@@ -17,8 +12,8 @@ pub async fn init_db() -> Result<Db, Error> {
     Ok(pool)
 }
 
-async fn new_db_pool(host: &str, db: &str, user: &str, pwd: &str, max_con: u32) -> Result<Db, Error> {
-    let con_string = format!("postgres://{}:{}@{}/{}", user, pwd, host, db);
+async fn new_db_pool(max_con: u32) -> Result<Db, Error> {
+    let con_string = std::env::var("DATABASE_URL").expect("env var DATABASE_URL must be set");
     PgPoolOptions::new()
         .max_connections(max_con)
         .connect(&con_string)
