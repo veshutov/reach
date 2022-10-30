@@ -6,12 +6,12 @@ use axum::extract::Path;
 use crate::{AppError, RepoError, WebError};
 use crate::model::{create, find_by_id, Social, SocialCreateDto};
 use crate::security::Claims;
-use crate::web::State;
+use crate::web::{ReqJson, State};
 
 pub async fn create_social(
     Extension(state): Extension<Arc<State>>,
     claims: Claims,
-    body: Json<SocialCreateDto>,
+    body: ReqJson<SocialCreateDto>,
 ) -> Result<Json<Social>, AppError> {
     create(&state.db, &claims, body.0)
         .await

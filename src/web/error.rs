@@ -1,7 +1,5 @@
 use axum::http::StatusCode;
-use axum::Json;
 use axum::response::{IntoResponse, Response};
-
 use serde_json::json;
 
 use crate::{AppError, WebError};
@@ -28,12 +26,13 @@ impl IntoResponse for AppError {
             AppError::Web(web_error) => {
                 match web_error {
                     WebError::UnsupportedApiVersion => (StatusCode::BAD_REQUEST, web_error.to_string()),
-                    WebError::InvalidRequest(_) => (StatusCode::BAD_REQUEST, web_error.to_string())
+                    WebError::InvalidRequest(_) => (StatusCode::BAD_REQUEST, web_error.to_string()),
+                    WebError::JsonExtractorRejection(_) => (StatusCode::BAD_REQUEST, web_error.to_string())
                 }
             }
         };
 
-        let body = Json(json!({
+        let body = axum::Json(json!({
             "error": error_message,
         }));
 
