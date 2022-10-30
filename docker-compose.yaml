@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  reach:
+    container_name: "reach"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - JWT_SECRET=jwt_secret
+      - DATABASE_URL=postgres://postgres:password@pg:5432/postgres
+      - PG_POOL_SIZE=10
+    depends_on:
+      - pg
+    ports:
+     - "3000:3000"
+  pg:
+    image: postgres:12
+    environment:
+      - POSTGRES_PASSWORD=password

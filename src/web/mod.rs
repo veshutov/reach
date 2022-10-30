@@ -23,7 +23,7 @@ mod version;
 mod error;
 
 pub async fn start_web(db: Db) -> hyper::Result<()> {
-    axum::Server::bind(&SocketAddr::from(([127, 0, 0, 1], 3000)))
+    axum::Server::bind(&SocketAddr::from(([0, 0, 0, 0], 3000)))
         .serve(app(db).into_make_service())
         .await
 }
