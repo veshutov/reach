@@ -905,6 +905,7 @@ dependencies = [
  "headers",
  "hyper",
  "jsonwebtoken",
+ "mime",
  "once_cell",
  "serde",
  "serde_json",

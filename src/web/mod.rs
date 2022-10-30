@@ -23,22 +23,24 @@ mod version;
 mod error;
 
 pub async fn start_web(db: Db) -> hyper::Result<()> {
+    axum::Server::bind(&SocketAddr::from(([127, 0, 0, 1], 3000)))
+        .serve(app(db).into_make_service())
+        .await
+}
+
+#[allow(dead_code)]
+pub fn app(db: Db) -> Router {
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new("tower_http=debug"))
         .with(tracing_subscriber::fmt::layer())
         .init();
-
     let shared_state = Arc::new(State { db });
-    let app = Router::new()
+    Router::new()
         .route("/api/:version/auth", post(authorize))
         .route("/api/:version/socials/:id", get(get_social_by_id))
         .route("/api/:version/socials", post(create_social))
         .layer(TraceLayer::new_for_http())
-        .layer(Extension(shared_state));
-
-    axum::Server::bind(&SocketAddr::from(([127, 0, 0, 1], 3000)))
-        .serve(app.into_make_service())
-        .await
+        .layer(Extension(shared_state))
 }
 
 pub struct State {

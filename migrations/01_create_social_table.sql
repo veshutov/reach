@@ -10,5 +10,3 @@ CREATE TABLE social (
     updated_at timestamp NOT NULL,
     updated_by bigserial NOT NULL
 );
-
-ALTER SEQUENCE social_id_seq RESTART WITH 1000;

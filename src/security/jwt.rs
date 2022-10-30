@@ -49,11 +49,12 @@ impl Keys {
 }
 
 pub async fn authorize(body: Json<AuthRequest>) -> Result<Json<AuthResponse>, AppError> {
-    //should compare with values from db
+    //todo should compare with values from db
     if body.client_id != "client_id" || body.client_secret != "client_secret" {
         return Err(AppError::Security(SecurityError::InvalidCredentials));
     }
 
+    //todo should fetch Claims from db
     let claims = Claims {
         sub: 11,
         company: "tomoru".to_owned(),
@@ -85,6 +86,7 @@ impl<S> FromRequest<S> for Claims
         let token_data = decode::<Claims>(bearer.token(), &KEYS.decoding, &Validation::default())
             .map_err(|_| AppError::Security(SecurityError::InvalidAuthToken))?;
 
+        //todo should also check exp
         Ok(token_data.claims)
     }
 }

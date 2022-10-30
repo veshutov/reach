@@ -1,6 +1,6 @@
-use crate::model::RepoError;
+use crate::model::{init_db, RepoError};
 use crate::security::SecurityError;
-use crate::web::WebError;
+use crate::web::{start_web, WebError};
 
 mod model;
 mod security;
@@ -8,10 +8,10 @@ mod web;
 
 #[tokio::main]
 async fn main() {
-    let db = model::init_db()
+    let db = init_db()
         .await
         .expect("failed to initialize db");
-    web::start_web(db)
+    start_web(db)
         .await
         .expect("failed to start web server");
 }

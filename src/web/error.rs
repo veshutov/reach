@@ -33,7 +33,7 @@ impl IntoResponse for AppError {
         };
 
         let body = axum::Json(json!({
-            "error": error_message,
+            "error_message": error_message,
         }));
 
         (status, body).into_response()

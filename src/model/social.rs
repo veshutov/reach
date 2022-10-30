@@ -25,7 +25,7 @@ pub struct SocialCreateDto {
 }
 
 pub async fn create(db: &Db, utx: &Claims, social: SocialCreateDto) -> Result<Social, RepoError> {
-    let sql = "INSERT INTO social (social_type, created_at, created_by, updated_at, updated_by) VALUES ($1, now(), $2, now(), $2) returning id, social_type";
+    let sql = "INSERT INTO social (social_type, created_at, created_by, updated_at, updated_by) VALUES ($1, now(), $2, now(), $2) returning *";
     let query = sqlx::query_as::<_, Social>(&sql)
         .bind(social.social_type)
         .bind(utx.sub);

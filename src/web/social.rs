@@ -35,3 +35,7 @@ pub async fn get_social_by_id(
 fn to_app_error(err: RepoError) -> AppError {
     AppError::Repo(err)
 }
+
+#[cfg(test)]
+#[path = "../_tests/web_social.rs"]
+mod tests;
